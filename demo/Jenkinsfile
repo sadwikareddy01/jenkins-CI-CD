@@ -1,0 +1,33 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Clone Repository') {
+            steps {
+                git 'https://github.com/sadwikareddy01/jenkins-CI-CD.git'
+            }
+        }
+
+        stage('Build with Maven') {
+            steps {
+                sh './mvnw clean install'
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                sh 'docker build -t demo-app .'
+            }
+        }
+
+        stage('Run Docker Container') {
+            steps {
+                sh '''
+                docker stop demo-app || true
+                docker rm demo-app || true
+                docker run -d -p 8080:8080 --name demo-app demo-app
+                '''
+            }
+        }
+    }
+}
